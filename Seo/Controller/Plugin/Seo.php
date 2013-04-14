@@ -115,7 +115,7 @@ class ZendX_Seo_Controller_Plugin_Seo extends Zend_Controller_Plugin_Abstract
             	}
             } else {
             	// Get the locale from the translator
-            	$this->_locale = $translator->getLocale();
+            	$this->_locale = new Zend_Locale($translator->getLocale());
             }
 		}
 		

@@ -92,7 +92,7 @@ class ZendX_View_Helper_CurrentLanguage extends Zend_View_Helper_Abstract
             	}
             } else {
             	// Get the locale from the translator
-            	$this->_locale = $translator->getLocale();
+            	$this->_locale = new Zend_Locale($translator->getLocale());
             }
 		}
 		

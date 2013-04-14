@@ -30,7 +30,7 @@ class ZendX_Multilingual_Controller_Plugin_Multilingual extends Zend_Controller_
 
 		// If we don't have a locale try to get it from the translator if available
 		if(null !== $translator) {
-			return $translator->getLocale();
+			return new Zend_Locale($translator->getLocale());
 		}
 		
 		// If we still don't have one we must throw an exception
