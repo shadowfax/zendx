@@ -39,6 +39,10 @@ class ZendX_Seo_Controller_Plugin_Seo extends Zend_Controller_Plugin_Abstract
 	 */
 	protected $_seo;
 	
+	
+	// ToDo: Add constructor and allow options
+	//       SEO object MUST be initialized here
+	
 	/**
 	 * Retrieve SEO object.
 	 * 
@@ -57,7 +61,7 @@ class ZendX_Seo_Controller_Plugin_Seo extends Zend_Controller_Plugin_Abstract
 	}
 	
 	/**
-     * preDispatch() plugin hook -- render layout
+     * preDispatch() plugin hook -- set the SEO tags
      *
      * @param  Zend_Controller_Request_Abstract $request
      * @return void
@@ -70,12 +74,26 @@ class ZendX_Seo_Controller_Plugin_Seo extends Zend_Controller_Plugin_Abstract
 		if (null !== $this->_seo) {
 			$view = Zend_Controller_Action_HelperBroker::getExistingHelper('ViewRenderer')->view;
 			
+			// --- META ---
 			$keywords = $this->_seo->getKeywords();
 			if (is_array($keywords)) {
-				$keywords = implode(',', $keywords);
-				$view->headMeta()->appendName('keywords', $keywords);
+				if (count($keywords) > 0) {
+					$keywords = implode(',', $keywords);
+					$view->headMeta()->appendName('keywords', $keywords);
+				}
 			}
 			unset($keywords);
+			
+			$robots = $this->_seo->getRobots();
+			if (is_array($robots)) {
+				if (count($robots) > 0) {
+					$robots = implode(',', $robots);
+					$view->headMeta()->appendName('robots', $robots);
+				}
+			}
+			unset($robots);
+			
+			// --- LINKS ---
 			
 			// Canonical
 			/*

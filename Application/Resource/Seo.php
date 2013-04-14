@@ -80,6 +80,13 @@ class ZendX_Application_Resource_Seo extends Zend_Application_Resource_ResourceA
             	}
             }
             
+            // Robots
+        	if (empty($options['robots'])) {
+        		$options['robots'] = array('index', 'follow');
+        	}elseif (is_string($options['robots'])) {
+            	$options['robots'] = explode(',', $options['robots']);
+            }
+            
         	// Register
             $key = (isset($options['registry_key']) && !is_numeric($options['registry_key']))
                      ? $options['registry_key']
