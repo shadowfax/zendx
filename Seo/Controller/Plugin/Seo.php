@@ -164,10 +164,15 @@ class ZendX_Seo_Controller_Plugin_Seo extends Zend_Controller_Plugin_Abstract
 			// Remove Open Graph (OG) Meta tags
 			$html = preg_replace('/<meta[^>]+property=\\"og\:([^\\"]*)\\"[^>]+content=\\"([^\\"]*)\\"[^>]+>/i', '', $html);
 			
+			// Remove the canonical url if present in error pages
+			$html = preg_replace('/<link[^>]+rel=\\"canonical"[^>]+>/i', '', $html);
+			
 			// Finally make the code look better
 			$html = preg_replace('/([\r\n]+)/',"\n", $html);
 			$html = preg_replace('/\n+/',"\n", $html);
 		}
+		
+		
 
 		$response->setBody($html);
 	}
