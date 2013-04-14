@@ -9,8 +9,8 @@
  * It is also available through the world-wide-web at this URL:
  * http://framework.zend.com/license/new-bsd
  *
- * @category   Zend
- * @package    Zend_Application
+ * @category   ZendX
+ * @package    ZendX_Application
  * @subpackage Resource
  * @copyright  Copyright (c) 2012-2013 Juan Pedro Gonzalez Gutierrez
  * @license    http://framework.zend.com/license/new-bsd     New BSD License

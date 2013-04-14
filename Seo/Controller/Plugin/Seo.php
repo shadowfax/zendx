@@ -39,6 +39,7 @@ class ZendX_Seo_Controller_Plugin_Seo extends Zend_Controller_Plugin_Abstract
 	 */
 	protected $_seo;
 	
+	protected $_locale;
 	
 	// ToDo: Add constructor and allow options
 	//       SEO object MUST be initialized here
@@ -64,6 +65,61 @@ class ZendX_Seo_Controller_Plugin_Seo extends Zend_Controller_Plugin_Abstract
 		}
 		
 		return $this->_seo;
+	}
+	
+	/**
+	 * Get the current locale.
+	 * 
+	 * @return Zend_Locale
+	 */
+	public function getLocale($defaultLocale = null)
+	{
+		if (null === $this->_locale) {
+			// Get the translator if available
+			$translator = null;
+			require_once 'Zend/Registry.php';
+            if (Zend_Registry::isRegistered('Zend_Translate')) {
+                $translator = Zend_Registry::get('Zend_Translate');
+            }
+            
+            // get the locale
+            if (null === $translator) {
+            	if (null != $defaultLocale) {
+            		if ($defaultLocale instanceof Zend_Locale) {
+            			if (Zend_Locale::isLocale($defaultLocale)) {
+            				$this->_locale = $defaultLocale;
+            			}
+            		} elseif (is_string($defaultLocale)) {
+            			if (Zend_Locale::isLocale($defaultLocale)) {
+            				$this->_locale = new Zend_Locale($defaultLocale);
+            			}
+            		}
+            	}
+
+            	// Should I continue trying to figure out the locale?
+            	if (null === $this->_locale) {
+	            	$defaultLocale = Zend_Locale::getDefault();
+			        if (count($defaultLocale) === 1) {
+			        	$defaultLocale = array_keys($defaultLocale);
+			        	$defaultLocale = $defaultLocale[0];
+			        	if (Zend_Locale::isLocale($defaultLocale)) {
+			        		$this->_locale = new Zend_Locale($defaultLocale);	
+			        	}
+			        }
+
+			        // If everything went wrong default to english
+			        if (null === $this->_locale) {
+			        	// Default to english if nothing worked
+			           	$this->_locale = new Zend_Locale("en");
+			        }
+            	}
+            } else {
+            	// Get the locale from the translator
+            	$this->_locale = $translator->getLocale();
+            }
+		}
+		
+		return $this->_locale;
 	}
 	
 	
@@ -120,11 +176,46 @@ class ZendX_Seo_Controller_Plugin_Seo extends Zend_Controller_Plugin_Abstract
 					}
 				}
 				unset($robots);
+				
+				// --- LINKS ---
+				$host = $this->_seo->getDomain();
+				
+				switch (true) {
+		            case (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] === true)):
+		            case (isset($_SERVER['HTTP_SCHEME']) && ($_SERVER['HTTP_SCHEME'] == 'https')):
+		            case (isset($_SERVER['SERVER_PORT']) && ($_SERVER['SERVER_PORT'] == 443)):
+		                $scheme = 'https';
+		                break;
+		            default:
+		            $scheme = 'http';
+		        }
+		        
+		        $baseUri = $scheme . '://' . $host;
+
+		        
+		        
+	            
+	            
+	            
+	            
+	            
+	            
+	            
+		        
+		        // canonical
+		        $view->headLink()->headLink(
+		        	array(
+		        		'rel'	=> 'canonical',
+		        		'href'	=> $baseUri . $_SERVER['REQUEST_URI']
+		        	)
+		        );
+
+		        
 			}
 			
 			$this->_processed = true;
 		}
-	}
+	} 
 	
 	public function dispatchLoopShutdown()
 	{
@@ -134,16 +225,21 @@ class ZendX_Seo_Controller_Plugin_Seo extends Zend_Controller_Plugin_Abstract
 		 */
 		$response = $this->getResponse();
 		
+		// Load the page
+		$html = $response->getBody();
+		
 		$headers = $response->getHeaders();
 		foreach($headers as $header)
 		{
 			//Do not proceed if content-type is not html/xhtml or such
-			if($header['name'] == 'Content-Type' && strpos($header['value'], 'html') === false)
-				return;			
+			if($header['name'] == 'Content-Type' && strpos($header['value'], 'html') === false) {
+				// Google returns Content-Length... So we are going to do the same
+				$response->setHeader('Content-Length', strlen($html));
+					
+				return;
+			}
 		}
 		
-		// Load the page
-		$html = $response->getBody();
 		
 		// METAS
 		$metas = $this->getMetaTags($html);
@@ -171,10 +267,15 @@ class ZendX_Seo_Controller_Plugin_Seo extends Zend_Controller_Plugin_Abstract
 			$html = preg_replace('/([\r\n]+)/',"\n", $html);
 			$html = preg_replace('/\n+/',"\n", $html);
 		}
-		
-		
-
+	
 		$response->setBody($html);
+		
+		// Google returns Content-Length... So we are going to do the same
+		$response->setHeader('Content-Length', strlen($html));
+		
+		// We also want to set the language header
+		// as some search engines use it to improve search results
+		$response->setHeader('Content-Language', $this->getLocale()->getLanguage());
 	}
 	
 	
