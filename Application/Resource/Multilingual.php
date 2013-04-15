@@ -134,16 +134,28 @@ class ZendX_Application_Resource_Multilingual extends Zend_Application_Resource_
             switch (strtolower(trim($options['route']))) {
             	case 'host':
             		{
-            		    $domain = explode(".", $options['domain']);
-            			if (strcasecmp($domain[0], 'www') === 0) {
-            				$domain[0] = ":language";
-            				$domain = implode('.', $domain);
+	            		if (isset($_SERVER['HTTP_HOST']) && !empty($_SERVER['HTTP_HOST'])) {
+				            $host = $_SERVER['HTTP_HOST'];
+				        } elseif (isset($_SERVER['SERVER_NAME'])) {
+				            $host = $_SERVER['SERVER_NAME'];
+				        } elseif (isset($_SERVER['SERVER_ADDR'])) {
+				        	$host = $_SERVER['SERVER_ADDR'];
+				        } else {
+				        	$host = "localhost";
+				        }
+				        
+				        // ToDo: Throw exception if host is an IP address
+				        
+            		    $host = explode(".", $host);
+            			if (strcasecmp($host[0], 'www') === 0) {
+            				$host[0] = ":language";
+            				$host = implode('.', $host);
             			} else {
-            				$domain = ':language.' . implode('.', $domain);
+            				$host = ':language.' . implode('.', $host);
             			}
             			
             			$multilingualRoute = new Zend_Controller_Router_Route_Hostname(
-            				$domain,
+            				$host,
             				array(  
 					            'language' => 'www'  
 					        ),
@@ -203,5 +215,7 @@ class ZendX_Application_Resource_Multilingual extends Zend_Application_Resource_
     	
     	return $this->_multilingual;
     }
+    
+    
     
 }
