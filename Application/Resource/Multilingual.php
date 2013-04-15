@@ -188,7 +188,7 @@ class ZendX_Application_Resource_Multilingual extends Zend_Application_Resource_
             // Create a default route if it didn't exist
             if (!isset($defaultRoute)) {
             	$defaultRoute = new Zend_Controller_Router_Route_Module();
-            	$router->addRoute('default', $multilingualRoute->chain($defaultRoute));
+            	$router->addRoute('default', $defaultRoute);
             	$router->addRoute('multilingual_default', $multilingualRoute->chain($defaultRoute));
             }
 	        
