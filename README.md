@@ -9,6 +9,38 @@ application.ini
     autoloaderNamespaces.ZendX = "ZendX_"
     resources.view.helperPath.ZendX_View_Helper = APPLICATION_PATH "/../library/ZendX/View/Helper"
 
+Multilingual Site
+-----------------
+We can setup a multilingual site through the application.ini file.
+
+	; Setting the router
+	resources.multilingual.route = "host"
+	; Setting up a translator for routes
+    resources.multilingual.translate.adapter = "tmx"
+    resources.multilingual.translate.data = APPLICATION_PATH "/languages/routes.tmx"
+    
+route parameter can be "host" or "path" (Being the default "path").
+With host the locale will be part of the subdomain, for example:
+
+    en.domain.com
+    es.domain.com
+    fr.domain.com
+
+A default route to www.domain.com will be appended as the default subdomain.
+
+When set as "path" the following format will be created:
+
+    www.domain.com/en/
+    www.domain.com/es/
+    www.domain.com/fr/
+    
+If "translate" is defined the routes will allow for translations based on 
+this transation adapter. It won't merge with the default translator which 
+can be defined through "resources.translate". The adapter is defined the 
+same way as Zend_Translate, the main difference is it will register as
+"ZendX_Route_Translate".
+
+
 ZendX_Seo
 ---------
 It can be loaded from application.ini and allows for some SEO (Search Engine Optimization) features.

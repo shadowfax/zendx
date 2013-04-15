@@ -6,9 +6,7 @@ class ZendX_Multilingual_Controller_Plugin_Multilingual extends Zend_Controller_
 	protected function getDefaultLocale()
 	{
 		$translator = null;
-		if (Zend_Registry::isRegistered('Zend_Translate')) {
-			$translator = Zend_Registry::get('Zend_Translate');
-		}
+		
 		
 		// We have to determine the default language
 		$defaultLocales = Zend_Locale::getDefault();
@@ -46,23 +44,26 @@ class ZendX_Multilingual_Controller_Plugin_Multilingual extends Zend_Controller_
 	{
 		$language = $request->getParam("language", "www");
 		
-		$translator = null;
-		if (Zend_Registry::isRegistered('Zend_Translate')) {
-			$translator = Zend_Registry::get('Zend_Translate');
-		}	
-		
+		// Set the default language
 		if (strcasecmp($language, "www") === 0) {
 			$locale = $this->getDefaultLocale();
 			$language = $locale->getLanguage();
 		}
 		
+		// Just in case the country code was sent
+		// replace dashes with underscores
+		$language = preg_replace('/\-/', '_', $language);
+		
 		// Set the translator language
-		if (null !== $translator) {
-			if ((Zend_Locale::isLocale($language)) && ($translator->isAvailable($language))) { 
-				$translator->setLocale(new Zend_Locale($language));
-			}
+		if (Zend_Registry::isRegistered('ZendX_Multilingual')) {
+			$multilingual = Zend_Registry::get('ZendX_Multilingual');
+			$multilingual->setLocale(new Zend_Locale($language));
+		} else if (Zend_Registry::isRegistered('Zend_Translate')) {
+			$translator = Zend_Registry::get('Zend_Translate');
+			$translator->setLocale(new Zend_Locale($language));
 		}
 		
+		// Set global param in router
 		$front = Zend_Controller_Front::getInstance();
 		$router = $front->getRouter();
 		$router->setGlobalParam('language', $language);
