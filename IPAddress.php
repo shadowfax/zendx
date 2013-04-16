@@ -27,6 +27,12 @@
 class ZendX_IPAddress
 {
 
+	/**
+	 * Check if the given address is a valid IP address (IPv4 or IPv6)
+	 * 
+	 * @param string $address
+	 * @return bool
+	 */
 	public static function isValid($address) 
 	{
 		if (function_exists('filter_var')) {
@@ -38,6 +44,12 @@ class ZendX_IPAddress
 		return false;
 	}
 	
+	/**
+	 * Check if the given address is a valid IPv4 address
+	 * 
+	 * @param string $address
+	 * @return bool
+	 */
 	public static function isIPv4($address)
 	{
 		if (function_exists('filter_var')) {
@@ -49,11 +61,17 @@ class ZendX_IPAddress
 		return false;
 	}
 	
+	/**
+	 * Check if the given address is a valid IPv6 address
+	 * 
+	 * @param string $address
+	 * @return bool
+	 */
 	public static function isIPv6($address)
 	{
-		//if (function_exists('filter_var')) {
-		//	if (filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false) return true;
-		//}
+		if (function_exists('filter_var')) {
+			if (filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false) return true;
+		}
 		 
 		if (preg_match('/^(((?=.*(::))(?!.*\3.+\3))\3?|([\dA-F]{1,4}(\3|:\b|$)|\2))(?4){5}((?4){2}|(((2[0-4]|1\d|[1-9])?\d|25[0-5])\.?\b){4})\z/i', $address)) return true;
 		return false;
