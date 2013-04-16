@@ -46,6 +46,8 @@ class ZendX_Multilingual
             $options = $options->toArray();
 		}
 		
+		// ToDo: Call set locale with the default locale defined in Zend Framework
+		
 		if (is_array($options)) {
 			if (isset($options['translate'])) {
 				$this->_translator = new Zend_Translate($options['translate']);

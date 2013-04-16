@@ -1,5 +1,7 @@
 ZendX (Zend eXtensions)
 =======================
+This is _NOT_ the official ZendX but a personal implementation of things 
+_I_ use together with Zend Framework.
 
 Setup
 -----

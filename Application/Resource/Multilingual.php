@@ -208,9 +208,26 @@ class ZendX_Application_Resource_Multilingual extends Zend_Application_Resource_
             // Initialize the multilingual plugin
             $bootstrap->getContainer()->frontcontroller->registerPlugin(new ZendX_Multilingual_Controller_Plugin_Multilingual());
             
-            // --- Finally ---
-            // Create the multilingual object
-            $this->_multilingual = new ZendX_Multilingual($options);
+            // Register
+    		$key = (isset($options['registry_key']) && !is_numeric($options['registry_key']))
+                   ? $options['registry_key']
+                   : self::DEFAULT_REGISTRY_KEY;
+            unset($options['registry_key']);
+
+            if(Zend_Registry::isRegistered($key)) {
+                $multilingual = Zend_Registry::get($key);
+                if(!$multilingual instanceof ZendX_Multilingual) {
+                    require_once 'Zend/Application/Resource/Exception.php';
+                    throw new Zend_Application_Resource_Exception($key
+                                   . ' already registered in registry but is '
+                                   . 'no instance of ZendX_Multilingual');
+                }
+
+                $this->_multilingual = $multilingual;
+            } else {
+                $this->_multilingual = new ZendX_Multilingual($options);
+                Zend_Registry::set($key, $this->_multilingual);
+            }
     	}
     	
     	return $this->_multilingual;

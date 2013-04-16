@@ -38,8 +38,7 @@ class ZendX_Multilingual_Controller_Plugin_Multilingual extends Zend_Controller_
 		return null;
 	}
 	
-	
-	
+
 	public function preDispatch(Zend_Controller_Request_Abstract $request)
 	{
 		$language = $request->getParam("language", "www");
@@ -53,6 +52,16 @@ class ZendX_Multilingual_Controller_Plugin_Multilingual extends Zend_Controller_
 		// Just in case the country code was sent
 		// replace dashes with underscores
 		$language = preg_replace('/\-/', '_', $language);
+		
+		// Check the requested locale is available
+		if (Zend_Registry::isRegistered('Zend_Translate'))
+		{
+			$translator = Zend_Registry::get('Zend_Translate');
+			if (!$translator->isAvailable($language)) {
+				$request->clearParams();
+				throw new Zend_Controller_Dispatcher_Exception("The language '{$language}' has to be added before it can be used.", 404);
+			}
+		}
 		
 		// Set the translator language
 		if (Zend_Registry::isRegistered('ZendX_Multilingual')) {
