@@ -144,25 +144,40 @@ class ZendX_Application_Resource_Multilingual extends Zend_Application_Resource_
 				        	$host = "localhost";
 				        }
 				        
-				        // ToDo: Throw exception if host is an IP address
-				        
-            		    $host = explode(".", $host);
-            			if (strcasecmp($host[0], 'www') === 0) {
-            				$host[0] = ":language";
-            				$host = implode('.', $host);
-            			} else {
-            				$host = ':language.' . implode('.', $host);
-            			}
-            			
-            			$multilingualRoute = new Zend_Controller_Router_Route_Hostname(
-            				$host,
-            				array(  
-					            'language' => 'www'  
-					        ),
-					        array(
-					        	'language' => '^(www|([a-zA-Z]{2}(\-[a-zA-Z]{2}){0,1}))$'
-					        )
-            			);
+				        require_once 'ZendX/IPAddress.php';
+				        // Check if the host is an IP Address
+				        if (ZendX_IPAddress::isValid($host)) {
+				        	// We have supplied an IP address
+				        	// fallback to path route
+				        	$multilingualRoute = new Zend_Controller_Router_Route(  
+						        ':language/',  
+						        array(  
+						            'language' => 'en'  
+						        ),
+						        array(
+						        	'language' => '^[a-zA-Z]{2}(\-[a-zA-Z]{2}){0,1}$'
+						        )  
+						    );
+				        } else {
+				      		// Here we go!
+	            		    $host = explode(".", $host);
+	            			if (strcasecmp($host[0], 'www') === 0) {
+	            				$host[0] = ":language";
+	            				$host = implode('.', $host);
+	            			} else {
+	            				$host = ':language.' . implode('.', $host);
+	            			}
+	            			
+	            			$multilingualRoute = new Zend_Controller_Router_Route_Hostname(
+	            				$host,
+	            				array(  
+						            'language' => 'www'  
+						        ),
+						        array(
+						        	'language' => '^(www|([a-zA-Z]{2}(\-[a-zA-Z]{2}){0,1}))$'
+						        )
+	            			);
+				        }
             			
             			break;
             		}

@@ -14,7 +14,6 @@
  * @package   ZendX_Multilingual
  * @copyright  Copyright (c) 2012-2013 Juan Pedro Gonzalez Gutierrez
  * @license   http://framework.zend.com/license/new-bsd     New BSD License
- * @version   $Id: Locale.php 24593 2012-01-05 20:35:02Z matthew $
  */
 
 /**
