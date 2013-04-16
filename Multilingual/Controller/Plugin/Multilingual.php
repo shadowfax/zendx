@@ -77,4 +77,57 @@ class ZendX_Multilingual_Controller_Plugin_Multilingual extends Zend_Controller_
 		$router = $front->getRouter();
 		$router->setGlobalParam('language', $language);
 	}
+	
+	public function dispatchLoopShutdown()
+	{
+		// Check the language tag is there!
+		
+		$response = $this->getResponse();
+		$headers = $response->getHeaders();
+		foreach($headers as $header)
+		{
+			//Do not proceed if content-type is not html/xhtml or such
+			if($header['name'] == 'Content-Type' && strpos($header['value'], 'html') === false) {
+				return;
+			}
+		}
+		
+		// Get the html tag
+		// Load the page
+		$html = $response->getBody();
+		
+		if (preg_match('/(<html>|<html [^>]*>)/i', $html, $matches) > 0) {
+			$tag = trim($matches[0]);
+			
+			// Is the lang attribute present?
+			$locale = null;
+			if (preg_match('/ lang="[^"]+"| lang=\'[^\']+\'/i', $tag) == 0) {
+				if (Zend_Registry::isRegistered('Zend_Locale')) {
+					$locale = Zend_Registry::get('Zend_Locale');
+				} 
+				
+				if (empty($locale)) {
+					if (Zend_Registry::isRegistered('Zend_Translate')) {
+						$translate = Zend_Registry::get('Zend_Translate');
+						$locale = $translate->getLocale();
+					}
+					
+					if (empty($locale)) {
+						$locale = $this->getDefaultLocale();
+					}	
+				}
+				
+				// Make sure it is a Zend_Locale and not a string
+				$locale = new Zend_Locale($locale);
+				
+				$new_tag  = substr($tag, 0, strlen($tag) - 1);
+				$new_tag .= ' lang="' . $locale->getLanguage() . '"';
+				$new_tag .= ">";
+				
+				$html = preg_replace('/' . $tag . '/i', $new_tag, $html);
+				$response->setBody($html);
+			}	
+		}
+		
+	}
 }
