@@ -136,6 +136,9 @@ class ZendX_Application_Resource_Multilingual extends Zend_Application_Resource_
             		{
 	            		if (isset($_SERVER['HTTP_HOST']) && !empty($_SERVER['HTTP_HOST'])) {
 				            $host = $_SERVER['HTTP_HOST'];
+				            $host = explode('.', $host, 2);
+				            $host[0] = "www";
+				            $host = implode(".", $host);
 				        } elseif (isset($_SERVER['SERVER_NAME'])) {
 				            $host = $_SERVER['SERVER_NAME'];
 				        } elseif (isset($_SERVER['SERVER_ADDR'])) {
