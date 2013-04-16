@@ -66,6 +66,11 @@ class ZendX_Application_Resource_Multilingual extends Zend_Application_Resource_
 	            $bootstrap->bootstrap('translate');
 	        } catch (Exception $e) {}
 	        
+    		// Bootstrap the locale
+    	    try {
+	            $bootstrap->bootstrap('locale');
+	        } catch (Exception $e) {}
+	        
 	        // Initialize the router and get all routes before 
 	        // appending the localized routes
 	        $router = $bootstrap->getContainer()->frontcontroller->getRouter();
@@ -77,6 +82,20 @@ class ZendX_Application_Resource_Multilingual extends Zend_Application_Resource_
 	        // Route option defaults to "path"
     		if (empty($options['route'])) {
             	$options['route'] = "path";
+            }
+            
+            // Get the default locale
+            $defaltLocale = "en";
+            $locales = Zend_Locale::getDefault();
+            if (count($locales) > 0) {
+            	$locales = array_keys($locales);
+            	$defaltLocale = $locales[0];
+            } else {
+            	$locales = Zend_Locale::getEnvironment();
+	            if (count($locales) > 0) {
+	            	$locales = array_keys($locales);
+	            	$defaltLocale = $locales[0];
+	            }	
             }
             
             // Translator options
@@ -146,7 +165,21 @@ class ZendX_Application_Resource_Multilingual extends Zend_Application_Resource_
 				        } elseif (isset($_SERVER['SERVER_ADDR'])) {
 				        	$host = $_SERVER['SERVER_ADDR'];
 				        } else {
-				        	$host = "localhost";
+				        	// Bootstrap SEO (As it may have the domain)
+				    	    try {
+					            $bootstrap->bootstrap('seo');
+					            if (Zend_Registry::isRegistered('ZendX_Seo')) {
+					            	$seo = Zend_Registry::get('ZendX_Seo');
+					            	$host = $seo->getDomain();
+					            }
+					        } catch (Exception $e) {
+					        }
+					        
+					        if (isset($host)) {
+					        	if (empty($host)) $host = "localhost";
+					        } else {
+					        	$host = "localhost";
+					        }
 				        }
 				        
 				        require_once 'ZendX/IPAddress.php';
@@ -157,7 +190,7 @@ class ZendX_Application_Resource_Multilingual extends Zend_Application_Resource_
 				        	$multilingualRoute = new Zend_Controller_Router_Route(  
 						        ':language/',  
 						        array(  
-						            'language' => 'en'  
+						            'language' => $defaltLocale,  
 						        ),
 						        array(
 						        	'language' => '^[a-zA-Z]{2}(\-[a-zA-Z]{2}){0,1}$'
@@ -191,7 +224,7 @@ class ZendX_Application_Resource_Multilingual extends Zend_Application_Resource_
             			$multilingualRoute = new Zend_Controller_Router_Route(  
 					        ':language/',  
 					        array(  
-					            'language' => 'en'  
+					            'language' => $defaltLocale,
 					        ),
 					        array(
 					        	'language' => '^[a-zA-Z]{2}(\-[a-zA-Z]{2}){0,1}$'
